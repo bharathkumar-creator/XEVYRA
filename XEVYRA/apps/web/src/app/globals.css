@@ -4,8 +4,9 @@
 
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 224 71% 4%;
+    --foreground: 0 0% 100%;
+    --primary: 73 100% 50%;
   }
 
   * {
@@ -17,7 +18,7 @@
 
   html,
   body {
-    background-color: #090D16;
+    background-color: #070A0F;
     color: #FFFFFF;
     font-family: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
@@ -25,46 +26,64 @@
     overflow-x: hidden;
     touch-action: manipulation;
   }
+
+  /* Accessible focus ring */
+  :focus-visible {
+    outline: 2px solid #D4FF00;
+    outline-offset: 2px;
+  }
 }
 
-/* Custom modern scrollbars */
+/* Safe area insets for mobile & iOS/Android notch/home indicator */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.pt-safe {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
+
+/* Touch targets >=44px */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Custom sleek scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090D16;
+  background: #070A0F;
 }
 ::-webkit-scrollbar-thumb {
   background: #1F293D;
-  border-radius: 3px;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00E599;
+  background: #D4FF00;
 }
 
-/* Touch Targets and Accessibility */
-.touch-target {
-  min-height: 48px;
-  min-width: 48px;
-}
-
-/* Subtle Card Glow Transitions */
+/* Card interactive micro-hover */
 .card-interactive {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease;
 }
-
 .card-interactive:hover {
   transform: translateY(-2px);
+  border-color: rgba(212, 255, 0, 0.3);
+}
+.card-interactive:active {
+  transform: scale(0.99);
 }
 
-/* Shimmer skeleton styling */
+/* Shimmer animation for skeletons */
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    rgba(22, 31, 51, 0.8) 0%,
-    rgba(42, 55, 82, 0.8) 50%,
-    rgba(22, 31, 51, 0.8) 100%
+    rgba(14, 19, 31, 0.8) 0%,
+    rgba(26, 36, 59, 0.8) 50%,
+    rgba(14, 19, 31, 0.8) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;

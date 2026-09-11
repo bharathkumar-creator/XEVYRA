@@ -41,3 +41,14 @@ export class FlutterBridgeClient {
     return this.postMessage({ action: 'notifyReady' });
   }
 }
+
+export function triggerHapticFeedback(type: 'light' | 'medium' | 'heavy' = 'light'): void {
+  if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(type === 'heavy' ? 25 : type === 'medium' ? 15 : 8);
+    } catch {
+      // Ignore vibration errors on unsupported devices
+    }
+  }
+}
+

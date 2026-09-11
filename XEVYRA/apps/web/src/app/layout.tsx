@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
-import { BottomNav } from '@/components/navigation/bottom-nav';
+import { AppShell } from '@/components/navigation/AppShell';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -18,7 +18,7 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: 'XEVYRA — Train. Fuel. Evolve.',
   description:
-    'Your AI-powered fitness companion for workouts, nutrition and a stronger tomorrow. Track Harder. Eat Smarter. Break Plateaus.',
+    'High-performance athlete fitness platform. Precision gym tracking, weight-based macro fuel, and progressive analytics.',
 };
 
 export const viewport: Viewport = {
@@ -27,7 +27,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#090D16',
+  themeColor: '#070A0F',
 };
 
 export default function RootLayout({
@@ -37,9 +37,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`dark ${inter.variable} ${outfit.variable}`}>
-      <body className="bg-background text-text-primary antialiased min-h-screen flex flex-col selection:bg-primary selection:text-white">
-        <main className="flex-1 flex flex-col">{children}</main>
-        <BottomNav />
+      <body className="bg-background-deep text-text-primary antialiased min-h-screen selection:bg-primary selection:text-background-deep">
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

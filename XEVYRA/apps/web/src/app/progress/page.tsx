@@ -1,105 +1,167 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Scale, TrendingUp, Trophy, Calendar, Plus } from 'lucide-react';
-import { TopHeader } from '@/components/navigation/top-header';
-import { WeightTrendCard } from '@/components/dashboard/weight-trend-card';
-
-const PR_RECORDS = [
-  { exercise: 'Barbell Bench Press', weight: '105 kg', reps: '3 reps', date: 'Yesterday', diff: '+2.5 kg' },
-  { exercise: 'Barbell Back Squat', weight: '140 kg', reps: '5 reps', date: 'Last week', diff: '+5.0 kg' },
-  { exercise: 'Conventional Deadlift', weight: '185 kg', reps: '1 rep', date: '2 weeks ago', diff: '+10.0 kg' },
-  { exercise: 'Overhead Press', weight: '70 kg', reps: '4 reps', date: '3 weeks ago', diff: '+2.5 kg' },
-];
+import { PageContainer } from '@/components/navigation/PageContainer';
+import { SectionHeader } from '@/components/navigation/SectionHeader';
+import { ProgressMetricCard } from '@/components/progress/ProgressMetricCard';
+import { WeightTrendCard } from '@/components/progress/WeightTrendCard';
+import { StrengthTrendCard, VolumeCard } from '@/components/progress/StrengthTrendCard';
+import { PRCard } from '@/components/progress/PRCard';
+import { Tabs } from '@/components/ui/Tabs';
 
 export default function ProgressPage() {
-  const [records] = useState(PR_RECORDS);
+  const [activeTab, setActiveTab] = useState('BODY_METRICS'); // BODY_METRICS | STRENGTH | RECORDS
+
+  // Mock progress analytics
+  const weightDataPoints = [
+    { label: 'Day 1', value: 78.8 },
+    { label: 'Day 2', value: 78.6 },
+    { label: 'Day 3', value: 78.5 },
+    { label: 'Day 4', value: 78.7 },
+    { label: 'Day 5', value: 78.4 },
+    { label: 'Day 6', value: 78.3 },
+    { label: 'Day 7', value: 78.2 },
+  ];
+
+  const benchStrengthPoints = [
+    { label: 'Week 1', value: 100 },
+    { label: 'Week 2', value: 102.5 },
+    { label: 'Week 3', value: 102.5 },
+    { label: 'Week 4', value: 107.5 },
+  ];
+
+  const volumeDailyData = [
+    { label: 'Mon', value: 8400 },
+    { label: 'Tue', value: 7200 },
+    { label: 'Wed', value: 0 },
+    { label: 'Thu', value: 9100 },
+    { label: 'Fri', value: 8800 },
+    { label: 'Sat', value: 6500 },
+    { label: 'Sun', value: 0 },
+  ];
+
+  const prsList = [
+    {
+      exerciseName: 'Incline Dumbbell Press',
+      category: 'Chest',
+      weight: 38,
+      reps: 6,
+      estimatedOneRepMax: 44,
+      achievedDate: 'Today',
+    },
+    {
+      exerciseName: 'Barbell Back Squat',
+      category: 'Legs',
+      weight: 140,
+      reps: 5,
+      estimatedOneRepMax: 162,
+      achievedDate: '3 days ago',
+    },
+    {
+      exerciseName: 'Weighted Pull-Up',
+      category: 'Back',
+      weight: 25,
+      reps: 6,
+      estimatedOneRepMax: 30,
+      achievedDate: '1 week ago',
+    },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#090D16] pb-24 md:pb-12">
-      <TopHeader />
+    <PageContainer maxWidth="xl" className="flex flex-col gap-6">
+      {/* 1. Header */}
+      <SectionHeader
+        title="Athlete Progression"
+        subtitle="Tracking body composition, strength curves, and volume overload"
+      />
 
-      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white font-display">
-              Body & Strength Progress
-            </h1>
-            <p className="text-xs sm:text-sm text-text-secondary mt-0.5">
-              Weight trends, estimated 1-Rep Max benchmarks, and training volume.
-            </p>
-          </div>
-
-          <button
-            onClick={() => alert('Log weight check-in')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand hover:bg-brand-hover text-background font-bold text-xs sm:text-sm rounded-xl shadow-glow-brand transition-all touch-target"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Log Weigh-In</span>
-          </button>
-        </div>
-
-        {/* Weight & Composition Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <WeightTrendCard />
-
-          <div className="bg-surface-card border border-border/80 rounded-2xl p-5 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm font-semibold text-text-secondary">
-                Weekly Summary
-              </span>
-              <span className="text-xs text-brand font-medium">On Track</span>
-            </div>
-            <div className="space-y-1 my-3">
-              <div className="flex justify-between text-xs">
-                <span className="text-text-muted">Target Weight</span>
-                <span className="text-white font-semibold">68.0 kg</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-text-muted">Average Deficit</span>
-                <span className="text-white font-semibold">-400 kcal/day</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-text-muted">Rate of Loss</span>
-                <span className="text-brand font-semibold">~0.5 kg/week</span>
-              </div>
-            </div>
-            <div className="w-full bg-surface-elevated rounded-full h-2 overflow-hidden">
-              <div className="bg-brand h-full rounded-full w-[65%]" />
-            </div>
-          </div>
-        </div>
-
-        {/* 1RM Strength Milestones */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 px-1">
-            <Trophy className="w-4 h-4 text-amber-400" />
-            <h2 className="text-base font-bold text-white font-display">Personal Records (1RM)</h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {records.map((item) => (
-              <div
-                key={item.exercise}
-                className="bg-surface-card border border-border/80 hover:border-border-light rounded-2xl p-4 flex items-center justify-between card-interactive"
-              >
-                <div>
-                  <h3 className="text-sm font-bold text-white font-display">{item.exercise}</h3>
-                  <p className="text-xs text-text-muted mt-0.5">{item.reps} · {item.date}</p>
-                </div>
-
-                <div className="text-right">
-                  <div className="text-base sm:text-lg font-bold font-display text-white">
-                    {item.weight}
-                  </div>
-                  <span className="text-[11px] font-semibold text-brand">{item.diff}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* 2. Top Key Stat Metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <ProgressMetricCard
+          label="Bodyweight"
+          value="78.2"
+          unit="kg"
+          deltaText="-0.6 kg (7d)"
+          deltaType="positive"
+        />
+        <ProgressMetricCard
+          label="Calorie Target"
+          value="2,400"
+          unit="kcal"
+          deltaText="Deficit Mode"
+          deltaType="neutral"
+        />
+        <ProgressMetricCard
+          label="Weekly Volume"
+          value="40.0"
+          unit="tonnes"
+          deltaText="+8% Overload"
+          deltaType="positive"
+        />
+        <ProgressMetricCard
+          label="Smashed PRs"
+          value="3"
+          unit="this month"
+          deltaText="On Track"
+          deltaType="positive"
+        />
       </div>
-    </div>
+
+      {/* 3. Navigation Tabs */}
+      <Tabs
+        tabs={[
+          { id: 'BODY_METRICS', label: 'Bodyweight & Fat' },
+          { id: 'STRENGTH', label: 'Strength & Volume' },
+          { id: 'RECORDS', label: 'PR Trophies' },
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        size="sm"
+      />
+
+      {/* Tab Content */}
+      {activeTab === 'BODY_METRICS' && (
+        <div className="flex flex-col gap-4">
+          <WeightTrendCard
+            currentWeightKg={78.2}
+            startingWeightKg={80.5}
+            sevenDayChangeKg={-0.6}
+            dataPoints={weightDataPoints}
+          />
+        </div>
+      )}
+
+      {activeTab === 'STRENGTH' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <StrengthTrendCard
+            exerciseName="Barbell Flat Bench Press"
+            currentOneRepMax={107.5}
+            deltaPercent={7.5}
+            dataPoints={benchStrengthPoints}
+          />
+          <VolumeCard
+            weeklyVolumeTons={40000}
+            deltaPercent={8}
+            dailyData={volumeDailyData}
+          />
+        </div>
+      )}
+
+      {activeTab === 'RECORDS' && (
+        <div className="flex flex-col gap-3">
+          {prsList.map((pr, i) => (
+            <PRCard
+              key={i}
+              exerciseName={pr.exerciseName}
+              category={pr.category}
+              weight={pr.weight}
+              reps={pr.reps}
+              estimatedOneRepMax={pr.estimatedOneRepMax}
+              achievedDate={pr.achievedDate}
+            />
+          ))}
+        </div>
+      )}
+    </PageContainer>
   );
 }

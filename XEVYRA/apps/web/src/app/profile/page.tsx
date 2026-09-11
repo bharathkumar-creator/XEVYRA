@@ -1,136 +1,154 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, Settings, Shield, LogOut, ChevronRight, Scale, Activity, Flame, Cpu } from 'lucide-react';
-import { TopHeader } from '@/components/navigation/top-header';
+import { PageContainer } from '@/components/navigation/PageContainer';
+import { SectionHeader } from '@/components/navigation/SectionHeader';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Avatar } from '@/components/ui/Avatar';
+import { Input } from '@/components/ui/Input';
+import { ConfirmationDialog } from '@/components/feedback/ConfirmationDialog';
+import { useToast } from '@/components/feedback/Toast';
 
 export default function ProfilePage() {
-  const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
+  const router = useRouter();
+  const { showToast } = useToast();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const [athlete, setAthlete] = useState({
+    name: 'Bharath',
+    email: 'athlete@xevyra.fit',
+    heightCm: 180,
+    weightKg: 78.2,
+    trainingExperience: 'Advanced (5+ years)',
+    weeklyWorkoutsTarget: 4,
+    dailyCalorieTarget: 2400,
+    maintenanceTDEE: 2650,
+    goalMode: 'DEFICIT (Fat Loss)',
+  });
+
+  const handleSaveProfile = () => {
+    showToast({
+      type: 'success',
+      title: 'Profile Updated',
+      message: 'Athlete biometric parameters synchronized.',
+    });
+  };
 
   const handleLogout = () => {
-    window.location.href = '/login';
+    setIsLogoutModalOpen(false);
+    showToast({
+      type: 'info',
+      title: 'Signed Out',
+      message: 'Securely logged out from XEVYRA session.',
+    });
+    router.push('/login');
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#090D16] pb-24 md:pb-12">
-      <TopHeader />
+    <PageContainer maxWidth="xl" className="flex flex-col gap-6">
+      {/* 1. Athlete Header Card */}
+      <Card variant="elevated" className="p-6 flex flex-col sm:flex-row items-center sm:items-start gap-5 border-border-light">
+        <Avatar name={athlete.name} size="xl" status="online" />
+        <div className="flex flex-col items-center sm:items-start text-center sm:text-left flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl font-black text-text-primary tracking-tight uppercase font-display">
+              {athlete.name}
+            </h1>
+            <Badge variant="primary" size="sm">
+              PRO ATHLETE
+            </Badge>
+          </div>
+          <span className="text-xs text-text-tertiary">{athlete.email}</span>
+          <p className="text-xs text-text-secondary mt-2">
+            Targeting lean body recomposition with high-protein hyper-caloric balance.
+          </p>
+        </div>
 
-      <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6">
-        {/* User Card */}
-        <div className="bg-surface-card border border-border/80 rounded-3xl p-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
-          <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-brand flex-shrink-0 bg-surface-elevated">
-            <Image
-              src="/images/athlete-avatar.jpg"
-              alt="Bharath"
-              fill
-              sizes="80px"
-              className="object-cover"
+        <Button variant="outline" size="sm" onClick={() => setIsLogoutModalOpen(true)}>
+          Sign Out
+        </Button>
+      </Card>
+
+      {/* 2. Biometric & Training Parameters */}
+      <div className="flex flex-col gap-3">
+        <SectionHeader
+          title="Biometrics & Targets"
+          subtitle="Configure physical markers and daily caloric targets"
+        />
+
+        <Card variant="default" className="p-5 flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Athlete Name"
+              value={athlete.name}
+              onChange={(e) => setAthlete({ ...athlete, name: e.target.value })}
+            />
+            <Input
+              label="Bodyweight (kg)"
+              type="number"
+              value={athlete.weightKg}
+              onChange={(e) => setAthlete({ ...athlete, weightKg: parseFloat(e.target.value) || 0 })}
+            />
+            <Input
+              label="Height (cm)"
+              type="number"
+              value={athlete.heightCm}
+              onChange={(e) => setAthlete({ ...athlete, heightCm: parseInt(e.target.value, 10) || 0 })}
+            />
+            <Input
+              label="Daily Target (kcal)"
+              type="number"
+              value={athlete.dailyCalorieTarget}
+              onChange={(e) => setAthlete({ ...athlete, dailyCalorieTarget: parseInt(e.target.value, 10) || 0 })}
             />
           </div>
 
-          <div className="text-center sm:text-left flex-1">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold font-display text-white">Bharath</h1>
-                <p className="text-xs text-text-secondary">bharath@xevyra.fit</p>
-              </div>
-              <span className="inline-flex items-center gap-1 self-center sm:self-start text-[11px] font-bold uppercase tracking-wider text-brand bg-brand/10 border border-brand/20 px-3 py-1 rounded-full">
-                PRO ATHLETE
-              </span>
-            </div>
-
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-border">
-              <div className="text-center">
-                <span className="text-xs text-text-muted">Weight</span>
-                <p className="text-sm font-bold font-display text-white">70.2 kg</p>
-              </div>
-              <div className="text-center">
-                <span className="text-xs text-text-muted">Target</span>
-                <p className="text-sm font-bold font-display text-white">2,200 kcal</p>
-              </div>
-              <div className="text-center">
-                <span className="text-xs text-text-muted">Streak</span>
-                <p className="text-sm font-bold font-display text-brand">12 Days 🔥</p>
-              </div>
-            </div>
+          <div className="pt-2 flex justify-end">
+            <Button variant="primary" size="sm" onClick={handleSaveProfile}>
+              Save Biometrics
+            </Button>
           </div>
-        </div>
+        </Card>
+      </div>
 
-        {/* Preferences Section */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted px-1">
-            Preferences & Settings
-          </h2>
-
-          <div className="bg-surface-card border border-border rounded-2xl divide-y divide-border">
-            {/* Units Toggle */}
-            <div className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Scale className="w-4 h-4 text-text-secondary" />
-                <span className="text-sm font-medium text-white">Weight Units</span>
-              </div>
-              <div className="flex bg-surface-elevated rounded-xl p-1 border border-border">
-                <button
-                  type="button"
-                  onClick={() => setUnit('kg')}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                    unit === 'kg' ? 'bg-brand text-background' : 'text-text-secondary'
-                  }`}
-                >
-                  KG
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUnit('lbs')}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                    unit === 'lbs' ? 'bg-brand text-background' : 'text-text-secondary'
-                  }`}
-                >
-                  LBS
-                </button>
-              </div>
-            </div>
-
-            {/* Security */}
-            <div className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Shield className="w-4 h-4 text-text-secondary" />
-                <span className="text-sm font-medium text-white">Security & Devices</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-text-muted" />
-            </div>
-
-            {/* Developer Diagnostics Link */}
-            <Link
-              href="/dev/diagnostics"
-              className="p-4 flex items-center justify-between hover:bg-surface-elevated/40 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <Cpu className="w-4 h-4 text-amber-400" />
-                <div>
-                  <span className="text-sm font-medium text-white">Developer Diagnostics</span>
-                  <p className="text-[11px] text-text-muted">MongoDB & API health smoke-test</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-text-muted" />
-            </Link>
+      {/* 3. System & Native Diagnostics */}
+      <div className="flex flex-col gap-2 pt-2 border-t border-border-subtle">
+        <span className="text-xs font-bold text-text-tertiary uppercase tracking-wider">
+          System & Mobile Shell
+        </span>
+        <div className="p-4 rounded-md bg-surface border border-border-subtle flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-text-primary uppercase block">
+              Flutter Native Bridge
+            </span>
+            <span className="text-[11px] text-text-tertiary">
+              Active bidirectional communication channel with WebView container
+            </span>
           </div>
-        </div>
-
-        {/* Logout CTA */}
-        <div className="pt-2">
-          <button
-            onClick={handleLogout}
-            className="w-full bg-surface-card hover:bg-surface-elevated text-danger font-medium py-3.5 px-4 rounded-2xl border border-red-500/20 hover:border-red-500/40 flex items-center justify-center gap-2 transition-colors touch-target"
+          <Link
+            href="/dev/diagnostics"
+            className="text-xs font-bold text-text-tertiary hover:text-primary uppercase"
           >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
-          </button>
+            Diagnostics &rarr;
+          </Link>
         </div>
       </div>
-    </div>
+
+      {/* Logout Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={isLogoutModalOpen}
+        title="Sign Out from XEVYRA"
+        description="Are you sure you want to end your current session? All offline logs are stored locally and will synchronize upon next login."
+        confirmLabel="Sign Out"
+        cancelLabel="Stay Logged In"
+        variant="danger"
+        onConfirm={handleLogout}
+        onCancel={() => setIsLogoutModalOpen(false)}
+      />
+    </PageContainer>
   );
 }

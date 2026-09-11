@@ -1,156 +1,408 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
-import { Apple, Plus, Utensils, Flame, Sparkles, ChevronRight } from 'lucide-react';
-import { TopHeader } from '@/components/navigation/top-header';
-import { CalorieProgress } from '@/components/dashboard/calorie-progress';
-import { MacroProgressCard } from '@/components/dashboard/macro-progress-card';
-
-interface LoggedMeal {
-  id: string;
-  category: 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fats: number;
-  thumbnailUrl: string;
-}
-
-const SAMPLE_MEALS: LoggedMeal[] = [
-  {
-    id: 'm1',
-    category: 'Breakfast',
-    name: 'Oats, Banana, Peanut Butter',
-    calories: 420,
-    protein: 18,
-    carbs: 62,
-    fats: 12,
-    thumbnailUrl: '/images/meal-breakfast.jpg',
-  },
-  {
-    id: 'm2',
-    category: 'Lunch',
-    name: 'Grilled Chicken Breast, Brown Rice & Broccoli',
-    calories: 680,
-    protein: 58,
-    carbs: 70,
-    fats: 14,
-    thumbnailUrl: '/images/meal-breakfast.jpg',
-  },
-  {
-    id: 'm3',
-    category: 'Dinner',
-    name: 'Salmon Fillet with Sweet Potato Mash',
-    calories: 550,
-    protein: 44,
-    carbs: 48,
-    fats: 19,
-    thumbnailUrl: '/images/meal-breakfast.jpg',
-  },
-];
+import { PageContainer } from '@/components/navigation/PageContainer';
+import { SectionHeader } from '@/components/navigation/SectionHeader';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { CalorieRing } from '@/components/ui/CalorieRing';
+import { MacroSummary } from '@/components/nutrition/MacroSummary';
+import { MealCard, MealItemProps } from '@/components/nutrition/MealCard';
+import { NutritionTargetCard } from '@/components/nutrition/NutritionTargetCard';
+import { FoodWeightInput, PredefinedFood } from '@/components/nutrition/FoodWeightInput';
+import { MaintenancePlannerModal } from '@/components/nutrition/MaintenancePlannerModal';
+import { useToast } from '@/components/feedback/Toast';
 
 export default function NutritionPage() {
-  const [meals] = useState<LoggedMeal[]>(SAMPLE_MEALS);
+  const { showToast } = useToast();
+  const [isFoodInputOpen, setIsFoodInputOpen] = useState(false);
+  const [activeMealType, setActiveMealType] = useState<string>('BREAKFAST');
+  const [isPlannerOpen, setIsPlannerOpen] = useState(false);
+
+  interface NutritionStrategyState {
+    goalMode: 'DEFICIT' | 'MAINTENANCE' | 'SURPLUS';
+    dailyCalorieTarget: number;
+    maintenanceCaloriesEstimated: number;
+    calorieOffset: number;
+    confidence: 'INSUFFICIENT' | 'PRELIMINARY' | 'INITIAL' | 'MORE_RELIABLE' | 'STRONGER_TREND';
+    daysAnalyzed: number;
+    macroTargets: {
+      protein: number;
+      carbs: number;
+      fat: number;
+    };
+  }
+
+  // Target and maintenance state
+  const [strategy, setStrategy] = useState<NutritionStrategyState>({
+    goalMode: 'DEFICIT',
+    dailyCalorieTarget: 2400,
+    maintenanceCaloriesEstimated: 2650,
+    calorieOffset: -250,
+    confidence: 'INITIAL',
+    daysAnalyzed: 7,
+    macroTargets: {
+      protein: 180,
+      carbs: 250,
+      fat: 70,
+    },
+  });
+
+  // Predefined food database with standard 100g basis
+  const availableFoods: PredefinedFood[] = [
+    {
+      id: 'food_chicken',
+      name: 'Grilled Chicken Breast',
+      category: 'Proteins',
+      baseCaloriesPer100g: 165,
+      baseProteinPer100g: 31,
+      baseCarbsPer100g: 0,
+      baseFatPer100g: 3.6,
+      standardUnit: 'g',
+      defaultServingSize: 200,
+    },
+    {
+      id: 'food_rice',
+      name: 'Jasmine Rice (Cooked)',
+      category: 'Carbs',
+      baseCaloriesPer100g: 130,
+      baseProteinPer100g: 2.7,
+      baseCarbsPer100g: 28.2,
+      baseFatPer100g: 0.3,
+      standardUnit: 'g',
+      defaultServingSize: 200,
+    },
+    {
+      id: 'food_eggs',
+      name: 'Whole Eggs (Boiled/Cooked)',
+      category: 'Proteins',
+      baseCaloriesPer100g: 155,
+      baseProteinPer100g: 13,
+      baseCarbsPer100g: 1.1,
+      baseFatPer100g: 11,
+      standardUnit: 'g',
+      defaultServingSize: 150,
+    },
+    {
+      id: 'food_oats',
+      name: 'Rolled Oats (Raw)',
+      category: 'Carbs',
+      baseCaloriesPer100g: 389,
+      baseProteinPer100g: 16.9,
+      baseCarbsPer100g: 66.3,
+      baseFatPer100g: 6.9,
+      standardUnit: 'g',
+      defaultServingSize: 80,
+    },
+    {
+      id: 'food_beef',
+      name: 'Lean Ground Beef (90/10)',
+      category: 'Proteins',
+      baseCaloriesPer100g: 176,
+      baseProteinPer100g: 20,
+      baseCarbsPer100g: 0,
+      baseFatPer100g: 10,
+      standardUnit: 'g',
+      defaultServingSize: 200,
+    },
+    {
+      id: 'food_whey',
+      name: 'Whey Protein Isolate',
+      category: 'Proteins',
+      baseCaloriesPer100g: 370,
+      baseProteinPer100g: 82,
+      baseCarbsPer100g: 3,
+      baseFatPer100g: 1.5,
+      standardUnit: 'g',
+      defaultServingSize: 30,
+    },
+    {
+      id: 'food_olive_oil',
+      name: 'Extra Virgin Olive Oil',
+      category: 'Fats',
+      baseCaloriesPer100g: 884,
+      baseProteinPer100g: 0,
+      baseCarbsPer100g: 0,
+      baseFatPer100g: 100,
+      standardUnit: 'g',
+      defaultServingSize: 15,
+    },
+  ];
+
+  // Daily logged meals
+  const [meals, setMeals] = useState<{ [key: string]: MealItemProps[] }>({
+    BREAKFAST: [
+      {
+        id: 'item_1',
+        foodName: 'Whole Eggs (Boiled/Cooked)',
+        quantity: 150,
+        unit: 'g',
+        calories: 232,
+        proteinGrams: 19.5,
+        carbsGrams: 1.6,
+        fatGrams: 16.5,
+      },
+      {
+        id: 'item_2',
+        foodName: 'Rolled Oats (Raw)',
+        quantity: 80,
+        unit: 'g',
+        calories: 311,
+        proteinGrams: 13.5,
+        carbsGrams: 53,
+        fatGrams: 5.5,
+      },
+    ],
+    LUNCH: [
+      {
+        id: 'item_3',
+        foodName: 'Grilled Chicken Breast',
+        quantity: 200,
+        unit: 'g',
+        calories: 330,
+        proteinGrams: 62,
+        carbsGrams: 0,
+        fatGrams: 7.2,
+      },
+      {
+        id: 'item_4',
+        foodName: 'Jasmine Rice (Cooked)',
+        quantity: 200,
+        unit: 'g',
+        calories: 260,
+        proteinGrams: 5.4,
+        carbsGrams: 56.4,
+        fatGrams: 0.6,
+      },
+    ],
+    DINNER: [
+      {
+        id: 'item_5',
+        foodName: 'Lean Ground Beef (90/10)',
+        quantity: 200,
+        unit: 'g',
+        calories: 352,
+        proteinGrams: 40,
+        carbsGrams: 0,
+        fatGrams: 20,
+      },
+      {
+        id: 'item_6',
+        foodName: 'Jasmine Rice (Cooked)',
+        quantity: 150,
+        unit: 'g',
+        calories: 195,
+        proteinGrams: 4,
+        carbsGrams: 42.3,
+        fatGrams: 0.4,
+      },
+    ],
+    SNACKS: [
+      {
+        id: 'item_7',
+        foodName: 'Whey Protein Isolate',
+        quantity: 30,
+        unit: 'g',
+        calories: 111,
+        proteinGrams: 24.6,
+        carbsGrams: 0.9,
+        fatGrams: 0.4,
+      },
+    ],
+  });
+
+  // Calculate totals
+  const allItems = Object.values(meals).flat();
+  const totalCalories = allItems.reduce((acc, item) => acc + item.calories, 0);
+  const totalProtein = allItems.reduce((acc, item) => acc + item.proteinGrams, 0);
+  const totalCarbs = allItems.reduce((acc, item) => acc + item.carbsGrams, 0);
+  const totalFat = allItems.reduce((acc, item) => acc + item.fatGrams, 0);
+
+  const handleOpenFoodLogger = (mealType: string) => {
+    setActiveMealType(mealType);
+    setIsFoodInputOpen(true);
+  };
+
+  const handleAddFoodEntry = (entry: {
+    foodId: string;
+    foodName: string;
+    quantity: number;
+    unit: string;
+    calories: number;
+    proteinGrams: number;
+    carbsGrams: number;
+    fatGrams: number;
+  }) => {
+    const newItem: MealItemProps = {
+      id: `logged_${Date.now()}`,
+      ...entry,
+    };
+
+    setMeals((prev) => ({
+      ...prev,
+      [activeMealType]: [...(prev[activeMealType] || []), newItem],
+    }));
+
+    showToast({
+      type: 'success',
+      title: 'Food Logged',
+      message: `${entry.foodName} (${entry.quantity}${entry.unit}) added to ${activeMealType}.`,
+    });
+  };
+
+  const handleRemoveFoodEntry = (mealType: string, id: string) => {
+    setMeals((prev) => ({
+      ...prev,
+      [mealType]: (prev[mealType] || []).filter((item) => item.id !== id),
+    }));
+    showToast({
+      type: 'info',
+      title: 'Item Removed',
+      message: 'Item removed from daily log.',
+    });
+  };
+
+  const handleApplyDietPlan = (plan: {
+    goalMode: 'DEFICIT' | 'MAINTENANCE' | 'SURPLUS';
+    calorieOffset: number;
+    targetCalories: number;
+    macroSplit: { proteinGrams: number; carbsGrams: number; fatGrams: number };
+  }) => {
+    setStrategy((prev) => ({
+      ...prev,
+      goalMode: plan.goalMode,
+      calorieOffset: plan.calorieOffset,
+      dailyCalorieTarget: plan.targetCalories,
+      macroTargets: {
+        protein: plan.macroSplit.proteinGrams,
+        carbs: plan.macroSplit.carbsGrams,
+        fat: plan.macroSplit.fatGrams,
+      },
+    }));
+
+    showToast({
+      type: 'success',
+      title: 'Strategy Updated',
+      message: `Daily target adjusted to ${plan.targetCalories} kcal (${plan.goalMode}).`,
+    });
+  };
+
+  const getMealCalories = (mealKey: string) => {
+    return (meals[mealKey] || []).reduce((acc, item) => acc + item.calories, 0);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#090D16] pb-24 md:pb-12">
-      <TopHeader />
+    <PageContainer maxWidth="xl" className="flex flex-col gap-6">
+      {/* 1. Header & Strategy Card */}
+      <div className="flex flex-col gap-2">
+        <SectionHeader
+          title="Daily Fuel & Macros"
+          subtitle="Precision weight-based nutrition tracking"
+        />
+        <NutritionTargetCard
+          goalMode={strategy.goalMode}
+          dailyCalorieTarget={strategy.dailyCalorieTarget}
+          maintenanceCaloriesEstimated={strategy.maintenanceCaloriesEstimated}
+          calorieOffset={strategy.calorieOffset}
+          confidence={strategy.confidence}
+          daysAnalyzed={strategy.daysAnalyzed}
+          onOpenPlanner={() => setIsPlannerOpen(true)}
+        />
+      </div>
 
-      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6">
-        {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white font-display">
-              Nutrition & Macros
-            </h1>
-            <p className="text-xs sm:text-sm text-text-secondary mt-0.5">
-              Track daily intake, macronutrient distribution, and AI meal recommendations.
-            </p>
-          </div>
+      {/* 2. Ring & Macros Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <Card variant="default" className="md:col-span-5 flex flex-col items-center justify-center p-6 text-center">
+          <span className="text-[11px] font-extrabold uppercase tracking-widest text-text-tertiary mb-3">
+            CALORIE PROGRESS
+          </span>
+          <CalorieRing
+            consumed={totalCalories}
+            target={strategy.dailyCalorieTarget}
+            size={170}
+          />
+        </Card>
 
-          <button
-            onClick={() => alert('Log food modal')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand hover:bg-brand-hover text-background font-bold text-xs sm:text-sm rounded-xl shadow-glow-brand transition-all touch-target"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Log Food</span>
-          </button>
-        </div>
-
-        {/* Nutrition Summary Cards */}
-        <div className="space-y-4">
-          <CalorieProgress consumed={1650} target={2200} percentage={75} />
-          <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
-            <MacroProgressCard type="protein" consumed={120} target={180} percentage={67} />
-            <MacroProgressCard type="carbs" consumed={180} target={275} percentage={65} />
-            <MacroProgressCard type="fats" consumed={55} target={70} percentage={79} />
-          </div>
-        </div>
-
-        {/* AI Diet Coach Insight Box */}
-        <div className="bg-gradient-to-r from-blue-950/40 via-purple-950/30 to-brand/10 border border-brand/20 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5">
-          <div className="p-2 rounded-xl bg-brand/10 text-brand flex-shrink-0">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-white font-display">XEVYRA AI Diet Coach</h3>
-            <p className="text-xs sm:text-sm text-text-secondary mt-1">
-              You are 60g shy of your daily protein target for optimal muscle protein synthesis. Consider adding a Greek yogurt snack or whey shake before bedtime.
-            </p>
-          </div>
-        </div>
-
-        {/* Logged Meals List */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-base font-bold text-white font-display">Today's Logged Meals</h2>
-            <span className="text-xs text-text-muted">{meals.length} meals logged</span>
-          </div>
-
-          <div className="space-y-3">
-            {meals.map((meal) => (
-              <div
-                key={meal.id}
-                className="bg-surface-card border border-border/80 hover:border-border-light rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-4 card-interactive"
-              >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-surface-elevated flex-shrink-0 border border-border">
-                    <Image
-                      src={meal.thumbnailUrl}
-                      alt={meal.name}
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                    />
-                  </div>
-
-                  <div className="min-w-0">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand">
-                      {meal.category}
-                    </span>
-                    <h3 className="text-sm sm:text-base font-bold text-white truncate">
-                      {meal.name}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-text-muted">
-                      <span className="font-semibold text-text-primary">{meal.calories} kcal</span>
-                      <span>·</span>
-                      <span className="text-blue-400">{meal.protein}g P</span>
-                      <span>·</span>
-                      <span className="text-amber-400">{meal.carbs}g C</span>
-                      <span>·</span>
-                      <span className="text-purple-400">{meal.fats}g F</span>
-                    </div>
-                  </div>
-                </div>
-
-                <ChevronRight className="w-5 h-5 text-text-muted flex-shrink-0" />
-              </div>
-            ))}
-          </div>
+        <div className="md:col-span-7">
+          <MacroSummary
+            protein={{ consumed: totalProtein, target: strategy.macroTargets.protein }}
+            carbs={{ consumed: totalCarbs, target: strategy.macroTargets.carbs }}
+            fat={{ consumed: totalFat, target: strategy.macroTargets.fat }}
+          />
         </div>
       </div>
-    </div>
+
+      {/* 3. Meals Breakdown (Weight-Based Logs) */}
+      <div className="flex flex-col gap-4">
+        <SectionHeader
+          title="Meal Breakdown"
+          subtitle="Log individual grams (e.g. Rice 200g, Chicken 200g)"
+        />
+
+        <div className="flex flex-col gap-4">
+          <MealCard
+            mealType="BREAKFAST"
+            title="Breakfast"
+            targetCalories={600}
+            loggedCalories={getMealCalories('BREAKFAST')}
+            items={meals['BREAKFAST'] || []}
+            onAddFood={() => handleOpenFoodLogger('BREAKFAST')}
+            onRemoveItem={(id) => handleRemoveFoodEntry('BREAKFAST', id)}
+          />
+
+          <MealCard
+            mealType="LUNCH"
+            title="Lunch"
+            targetCalories={750}
+            loggedCalories={getMealCalories('LUNCH')}
+            items={meals['LUNCH'] || []}
+            onAddFood={() => handleOpenFoodLogger('LUNCH')}
+            onRemoveItem={(id) => handleRemoveFoodEntry('LUNCH', id)}
+          />
+
+          <MealCard
+            mealType="DINNER"
+            title="Dinner"
+            targetCalories={750}
+            loggedCalories={getMealCalories('DINNER')}
+            items={meals['DINNER'] || []}
+            onAddFood={() => handleOpenFoodLogger('DINNER')}
+            onRemoveItem={(id) => handleRemoveFoodEntry('DINNER', id)}
+          />
+
+          <MealCard
+            mealType="SNACKS"
+            title="Snacks & Post-Workout"
+            targetCalories={300}
+            loggedCalories={getMealCalories('SNACKS')}
+            items={meals['SNACKS'] || []}
+            onAddFood={() => handleOpenFoodLogger('SNACKS')}
+            onRemoveItem={(id) => handleRemoveFoodEntry('SNACKS', id)}
+          />
+        </div>
+      </div>
+
+      {/* Food Weight Input Modal */}
+      <FoodWeightInput
+        isOpen={isFoodInputOpen}
+        mealType={activeMealType}
+        availableFoods={availableFoods}
+        onAddFood={handleAddFoodEntry}
+        onClose={() => setIsFoodInputOpen(false)}
+      />
+
+      {/* 7-Day Maintenance Calorie & AI Diet Planner Modal */}
+      <MaintenancePlannerModal
+        isOpen={isPlannerOpen}
+        currentMaintenanceEstimated={strategy.maintenanceCaloriesEstimated}
+        daysAnalyzed={strategy.daysAnalyzed}
+        confidence={strategy.confidence}
+        initialGoalMode={strategy.goalMode}
+        initialOffset={strategy.calorieOffset}
+        onApplyPlan={handleApplyDietPlan}
+        onClose={() => setIsPlannerOpen(false)}
+      />
+    </PageContainer>
   );
 }
