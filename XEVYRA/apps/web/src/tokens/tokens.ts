@@ -61,8 +61,8 @@ export const tokens = {
   },
   typography: {
     fontFamily: {
-      sans: "var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif",
-      display: "var(--font-outfit), 'Outfit', system-ui, sans-serif",
+      sans: "var(--font-poppins), 'Poppins', system-ui, -apple-system, sans-serif",
+      display: "var(--font-poppins), 'Poppins', system-ui, sans-serif",
     },
     fontSize: {
       display: ['2.25rem', { lineHeight: '2.5rem', fontWeight: '800', letterSpacing: '-0.03em' }],

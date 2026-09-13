@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 
 export interface NutritionTargetCardProps {
   goalMode: 'DEFICIT' | 'MAINTENANCE' | 'SURPLUS';
+  cuisineType?: 'AMERICAN' | 'NORTH_INDIAN' | 'SOUTH_INDIAN' | 'MEDITERRANEAN' | 'ASIAN';
   dailyCalorieTarget: number;
   maintenanceCaloriesEstimated: number;
   calorieOffset: number;
@@ -16,6 +17,7 @@ export interface NutritionTargetCardProps {
 
 export const NutritionTargetCard: React.FC<NutritionTargetCardProps> = ({
   goalMode,
+  cuisineType = 'AMERICAN',
   dailyCalorieTarget,
   maintenanceCaloriesEstimated,
   calorieOffset,
@@ -29,6 +31,14 @@ export const NutritionTargetCard: React.FC<NutritionTargetCardProps> = ({
     MAINTENANCE: <Badge variant="primary" size="sm">MAINTENANCE (RECOMP)</Badge>,
     SURPLUS: <Badge variant="emerald" size="sm">CALORIE SURPLUS (LEAN BULK)</Badge>,
   }[goalMode];
+
+  const cuisineBadge = {
+    AMERICAN: <Badge variant="neutral" size="sm">🇺🇸 AMERICAN</Badge>,
+    NORTH_INDIAN: <Badge variant="neutral" size="sm">🇮🇳 NORTH INDIAN</Badge>,
+    SOUTH_INDIAN: <Badge variant="neutral" size="sm">🌴 SOUTH INDIAN</Badge>,
+    MEDITERRANEAN: <Badge variant="neutral" size="sm">🥑 MEDITERRANEAN</Badge>,
+    ASIAN: <Badge variant="neutral" size="sm">🥢 ASIAN</Badge>,
+  }[cuisineType];
 
   const confidenceText = {
     INSUFFICIENT: '0-2 Days (Gathering baseline)',
@@ -45,11 +55,12 @@ export const NutritionTargetCard: React.FC<NutritionTargetCardProps> = ({
           <span className="text-[10px] font-extrabold text-primary uppercase tracking-widest block mb-0.5">
             ENERGY BALANCE & TARGET
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-base font-bold text-text-primary uppercase tracking-wide font-display">
               {dailyCalorieTarget} KCAL / DAY
             </h3>
             {goalBadge}
+            {cuisineBadge}
           </div>
         </div>
 

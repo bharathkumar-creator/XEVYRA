@@ -22,25 +22,23 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-semibold rounded-md transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none';
+    'inline-flex items-center justify-center font-bold rounded-md transition-all duration-200 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none select-none';
 
   const sizeStyles = {
     sm: 'h-9 px-3.5 text-xs tracking-wide uppercase',
     md: 'h-11 px-5 text-sm tracking-wide uppercase',
-    lg: 'h-13 px-6 text-base tracking-wide uppercase font-bold',
+    lg: 'h-13 px-6 text-base tracking-wide uppercase font-black',
   }[size];
 
   const variantStyles = {
-    primary:
-      'bg-primary text-background-deep font-bold hover:bg-primary-hover shadow-glow-primary active:bg-primary-hover',
-    secondary:
-      'bg-surface-elevated text-text-primary hover:bg-surface-muted border border-border-subtle active:border-border',
+    primary: 'uiverse-btn-primary',
+    secondary: 'uiverse-btn-secondary',
     outline:
-      'bg-transparent text-primary border border-primary/40 hover:border-primary hover:bg-primary-muted',
+      'bg-transparent text-primary border border-primary/40 hover:border-primary hover:bg-primary/10 active:bg-primary/15',
     ghost:
       'bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface-elevated',
     danger:
-      'bg-feedback-danger/15 text-feedback-danger border border-feedback-danger/30 hover:bg-feedback-danger/25',
+      'bg-feedback-danger/15 text-feedback-danger border border-feedback-danger/30 hover:bg-feedback-danger/25 active:bg-feedback-danger/30',
   }[variant];
 
   const widthStyle = fullWidth ? 'w-full' : '';

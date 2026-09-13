@@ -1,33 +1,33 @@
 import { Db, Collection } from 'mongodb';
 import { IAuthAuditRepository, AuthAuditEvent, AuthEventType } from '@xevyra/domain';
 
-interface AuthAuditDocument {
-  _id: string;
-  eventType: AuthEventType;
-  userId?: string;
-  firebaseUid?: string;
-  ipAddress?: string;
-  userAgent?: string;
-  metadata?: Record<string, unknown>;
-  timestamp: Date;
+export interface AuditLogDocument {
+  _id: string;                         // 'aud_01J...'
+  audAction: AuthEventType;
+  audUserId?: string;                  // 'usr_01J...'
+  audFirebaseUid?: string;
+  audIpAddress?: string;
+  audUserAgent?: string;
+  audMetadata?: Record<string, unknown>;
+  audCreatedAt: Date;
 }
 
 export class MongoAuthAuditRepository implements IAuthAuditRepository {
-  private collection: Collection<AuthAuditDocument>;
+  private collection: Collection<AuditLogDocument>;
 
   constructor(db: Db) {
-    this.collection = db.collection<AuthAuditDocument>('auth_audit_logs');
+    this.collection = db.collection<AuditLogDocument>('audit_logs');
   }
 
-  private toDomain(doc: AuthAuditDocument): AuthAuditEvent {
+  private toDomain(doc: AuditLogDocument): AuthAuditEvent {
     const eventResult = AuthAuditEvent.create(doc._id, {
-      eventType: doc.eventType,
-      userId: doc.userId,
-      firebaseUid: doc.firebaseUid,
-      ipAddress: doc.ipAddress,
-      userAgent: doc.userAgent,
-      metadata: doc.metadata,
-      timestamp: doc.timestamp,
+      eventType: doc.audAction,
+      userId: doc.audUserId,
+      firebaseUid: doc.audFirebaseUid,
+      ipAddress: doc.audIpAddress,
+      userAgent: doc.audUserAgent,
+      metadata: doc.audMetadata,
+      timestamp: doc.audCreatedAt,
     });
 
     if (eventResult.isFailure) {
@@ -37,16 +37,16 @@ export class MongoAuthAuditRepository implements IAuthAuditRepository {
     return eventResult.getValue();
   }
 
-  private toDocument(event: AuthAuditEvent): AuthAuditDocument {
+  private toDocument(event: AuthAuditEvent): AuditLogDocument {
     return {
-      _id: event.id,
-      eventType: event.eventType,
-      userId: event.userId,
-      firebaseUid: event.firebaseUid,
-      ipAddress: event.ipAddress,
-      userAgent: event.userAgent,
-      metadata: event.metadata,
-      timestamp: event.timestamp,
+      _id: event.id.startsWith('aud_') ? event.id : `aud_${event.id}`,
+      audAction: event.eventType,
+      audUserId: event.userId,
+      audFirebaseUid: event.firebaseUid,
+      audIpAddress: event.ipAddress,
+      audUserAgent: event.userAgent,
+      audMetadata: event.metadata,
+      audCreatedAt: event.timestamp,
     };
   }
 
@@ -57,8 +57,8 @@ export class MongoAuthAuditRepository implements IAuthAuditRepository {
 
   public async getRecentEventsByUser(userId: string, limit: number = 20): Promise<AuthAuditEvent[]> {
     const docs = await this.collection
-      .find({ userId })
-      .sort({ timestamp: -1 })
+      .find({ audUserId: userId })
+      .sort({ audCreatedAt: -1 })
       .limit(limit)
       .toArray();
 

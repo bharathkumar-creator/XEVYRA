@@ -4,13 +4,17 @@ import { SessionResponse, CurrentUserResponse, LogoutResponse, UserDto } from '@
 import { generateId } from '@xevyra/shared';
 import { AppError } from '../../../shared/errors/app-error.js';
 import { AuthAuditLogger } from '../../../shared/logging/auth-audit.logger.js';
+import { MongoProfileRepository } from '../../profile/infrastructure/mongo-profile.repository.js';
+import { MongoNutritionRepository } from '../../nutrition/infrastructure/mongo-nutrition.repository.js';
 
 export class AuthController {
   private auditLogger: AuthAuditLogger;
 
   constructor(
     private userRepository: IUserRepository,
-    auditRepository?: IAuthAuditRepository
+    auditRepository?: IAuthAuditRepository,
+    private profileRepository?: MongoProfileRepository,
+    private nutritionRepository?: MongoNutritionRepository
   ) {
     this.auditLogger = new AuthAuditLogger(auditRepository);
   }
@@ -70,6 +74,40 @@ export class AuthController {
 
         user = newUserResult.getValue();
         await this.userRepository.save(user);
+
+        // Provision User Profile
+        if (this.profileRepository && typeof this.profileRepository.save === 'function') {
+          await this.profileRepository.save({
+            id: `upr_${user.id.replace(/^usr_/, '')}`,
+            userId: user.id,
+            heightCm: 180,
+            currentWeightKg: 78.2,
+            gender: 'MALE',
+            activityLevel: 'ATHLETE',
+            weeklyWorkoutTarget: 4,
+            trainingExperience: 'ADVANCED',
+            preferredCuisine: 'AMERICAN',
+            preferredUnits: 'METRIC',
+            timezone: user.timezone || 'UTC',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+        }
+
+        // Provision Nutrition Targets
+        if (this.nutritionRepository && typeof this.nutritionRepository.saveTargets === 'function') {
+          await this.nutritionRepository.saveTargets({
+            _id: `ntr_${user.id.replace(/^usr_/, '')}`,
+            ntrUserId: user.id,
+            ntrTargetCalories: 2600,
+            ntrTargetProteinGrams: 160,
+            ntrTargetCarbsGrams: 280,
+            ntrTargetFatGrams: 75,
+            ntrEffectiveFrom: new Date(),
+            ntrCreatedAt: new Date(),
+            ntrUpdatedAt: new Date(),
+          });
+        }
       } else {
         // Update profile fields if provided
         if (displayName || avatarUrl || timezone) {

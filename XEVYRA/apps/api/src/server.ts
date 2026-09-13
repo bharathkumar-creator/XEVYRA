@@ -3,6 +3,10 @@ import { MongoDatabase } from './shared/database/mongo.client.js';
 import { FirebaseAuthService } from './shared/auth/firebase-admin.client.js';
 import { MongoUserRepository } from './modules/identity/infrastructure/mongo-user.repository.js';
 import { MongoAuthAuditRepository } from './modules/identity/infrastructure/mongo-auth-audit.repository.js';
+import { MongoProfileRepository } from './modules/profile/infrastructure/mongo-profile.repository.js';
+import { MongoTrainingRepository } from './modules/training/infrastructure/mongo-training.repository.js';
+import { MongoNutritionRepository } from './modules/nutrition/infrastructure/mongo-nutrition.repository.js';
+import { MongoProgressRepository } from './modules/progress/infrastructure/mongo-progress.repository.js';
 import { createApp } from './app.js';
 import { Logger } from './shared/logging/logger.js';
 
@@ -21,6 +25,10 @@ async function bootstrap() {
     // Repositories
     const userRepository = new MongoUserRepository(db);
     const auditRepository = new MongoAuthAuditRepository(db);
+    const profileRepository = new MongoProfileRepository(db);
+    const trainingRepository = new MongoTrainingRepository(db);
+    const nutritionRepository = new MongoNutritionRepository(db);
+    const progressRepository = new MongoProgressRepository(db);
 
     // Create App
     const app = createApp({
@@ -29,6 +37,10 @@ async function bootstrap() {
       userRepository,
       authService,
       auditRepository,
+      profileRepository,
+      trainingRepository,
+      nutritionRepository,
+      progressRepository,
     });
 
     const server = app.listen(config.PORT, () => {

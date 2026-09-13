@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { AnimatedCheckbox } from '../ui/AnimatedCheckbox';
 
 export interface SetRowProps {
   setNumber: number;
@@ -73,22 +74,14 @@ export const SetRow: React.FC<SetRowProps> = ({
         />
       </div>
 
-      {/* Completion Button (>=44px touch target) */}
+      {/* Completion Animated Checkbox (>=44px touch target) */}
       <div className="col-span-2 flex justify-center">
-        <button
-          type="button"
-          aria-label={isCompleted ? `Mark set ${setNumber} incomplete` : `Complete set ${setNumber}`}
-          onClick={onToggleComplete}
-          className={`w-11 h-10 rounded-sm flex items-center justify-center transition-all duration-150 active:scale-95 touch-target ${
-            isCompleted
-              ? 'bg-brand-emerald text-background-deep shadow-sm'
-              : 'bg-surface-muted text-text-tertiary hover:text-text-primary hover:bg-surface-muted/80 border border-border-subtle'
-          }`}
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-          </svg>
-        </button>
+        <AnimatedCheckbox
+          checked={isCompleted}
+          onChange={onToggleComplete}
+          ariaLabel={isCompleted ? `Mark set ${setNumber} incomplete` : `Complete set ${setNumber}`}
+          size="md"
+        />
       </div>
     </div>
   );

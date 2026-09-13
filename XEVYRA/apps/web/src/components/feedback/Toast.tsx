@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 
 export interface ToastMessage {
   id: string;
-  type?: 'success' | 'warning' | 'danger' | 'info';
+  type?: 'success' | 'warning' | 'danger' | 'error' | 'info';
   title?: string;
   message: string;
   duration?: number;
@@ -52,6 +52,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             success: 'border-feedback-success/50',
             warning: 'border-feedback-warning/50',
             danger: 'border-feedback-danger/50',
+            error: 'border-feedback-danger/50',
             info: 'border-primary/50',
           }[t.type || 'info'];
 
@@ -59,6 +60,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             success: 'text-feedback-success',
             warning: 'text-feedback-warning',
             danger: 'text-feedback-danger',
+            error: 'text-feedback-danger',
             info: 'text-primary',
           }[t.type || 'info'];
 

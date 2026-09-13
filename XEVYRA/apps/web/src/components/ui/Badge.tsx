@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: 'primary' | 'emerald' | 'protein' | 'carbs' | 'fat' | 'calories' | 'warning' | 'danger' | 'neutral';
+  variant?: 'primary' | 'emerald' | 'protein' | 'carbs' | 'fat' | 'calories' | 'warning' | 'danger' | 'success' | 'neutral';
   size?: 'sm' | 'md';
   pulse?: boolean;
 }
@@ -28,6 +28,7 @@ export const Badge: React.FC<BadgeProps> = ({
     calories: 'bg-macro-calories/15 text-macro-calories border border-macro-calories/30',
     warning: 'bg-feedback-warning/15 text-feedback-warning border border-feedback-warning/30',
     danger: 'bg-feedback-danger/15 text-feedback-danger border border-feedback-danger/30',
+    success: 'bg-feedback-success/15 text-feedback-success border border-feedback-success/30',
     neutral: 'bg-surface-muted text-text-secondary border border-border-subtle',
   }[variant];
 

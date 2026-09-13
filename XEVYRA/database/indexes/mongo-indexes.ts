@@ -1,6 +1,6 @@
 /**
  * MongoDB Index Definitions for XEVYRA Platform
- * Corresponds to Section 30 of Architecture Specification
+ * Strictly enforces 3-character collection prefix naming convention
  */
 
 export interface IndexDefinition {
@@ -15,74 +15,155 @@ export interface IndexDefinition {
 }
 
 export const MONGO_INDEXES: IndexDefinition[] = [
-  // Users Collection
+  // 1. Users Collection (usr)
   {
     collection: 'users',
-    spec: { firebaseUid: 1 },
-    options: { unique: true, name: 'idx_users_firebase_uid_unique' },
+    spec: { usrFirebaseUid: 1 },
+    options: { unique: true, name: 'idx_users_usrFirebaseUid_unique' },
   },
   {
     collection: 'users',
-    spec: { email: 1 },
-    options: { unique: true, name: 'idx_users_email_unique' },
+    spec: { usrEmail: 1 },
+    options: { unique: true, name: 'idx_users_usrEmail_unique' },
   },
 
-  // Auth Audit Logs Collection
+  // 2. User Profiles Collection (upr)
   {
-    collection: 'auth_audit_logs',
-    spec: { userId: 1, timestamp: -1 },
-    options: { name: 'idx_auth_audit_user_timestamp' },
-  },
-  {
-    collection: 'auth_audit_logs',
-    spec: { firebaseUid: 1, timestamp: -1 },
-    options: { name: 'idx_auth_audit_firebase_timestamp' },
+    collection: 'user_profiles',
+    spec: { uprUserId: 1 },
+    options: { unique: true, name: 'idx_user_profiles_uprUserId_unique' },
   },
 
-  // Profiles Collection
+  // 3. Nutrition Targets Collection (ntr)
   {
-    collection: 'profiles',
-    spec: { userId: 1 },
-    options: { unique: true, name: 'idx_profiles_user_id_unique' },
+    collection: 'nutrition_targets',
+    spec: { ntrUserId: 1, ntrEffectiveFrom: -1 },
+    options: { name: 'idx_nutrition_targets_ntrUserId_effective' },
   },
 
-  // Weight Logs Collection
+  // 4. Exercises Collection (exr)
   {
-    collection: 'weight_logs',
-    spec: { userId: 1, loggedAt: -1 },
-    options: { name: 'idx_weight_logs_user_logged_at' },
+    collection: 'exercises',
+    spec: { exrName: 1, exrCreatedByUserId: 1 },
+    options: { name: 'idx_exercises_exrName_createdUser' },
+  },
+  {
+    collection: 'exercises',
+    spec: { exrMuscleGroup: 1 },
+    options: { name: 'idx_exercises_exrMuscleGroup' },
+  },
+  {
+    collection: 'exercises',
+    spec: { exrIsCustom: 1, exrCreatedByUserId: 1 },
+    options: { name: 'idx_exercises_custom_user' },
   },
 
-  // Daily Nutrition Collection
+  // 5. Workout Routines Collection (wro)
   {
-    collection: 'daily_nutrition',
-    spec: { userId: 1, dateString: 1 },
-    options: { unique: true, name: 'idx_daily_nutrition_user_date_unique' },
+    collection: 'workout_routines',
+    spec: { wroUserId: 1, wroIsArchived: 1 },
+    options: { name: 'idx_workout_routines_user_archived' },
   },
 
-  // Workout Sessions Collection
+  // 6. Workout Sessions Collection (wse)
   {
     collection: 'workout_sessions',
-    spec: { userId: 1, startedAt: -1 },
-    options: { name: 'idx_workout_sessions_user_started_at' },
+    spec: { wseUserId: 1, wseStartedAt: -1 },
+    options: { name: 'idx_workout_sessions_user_started' },
   },
   {
     collection: 'workout_sessions',
-    spec: { userId: 1, clientMutationId: 1 },
-    options: { unique: true, sparse: true, name: 'idx_workout_sessions_idempotency_unique' },
+    spec: { wseUserId: 1, wseStatus: 1 },
+    options: { name: 'idx_workout_sessions_user_status' },
   },
 
-  // Personal Records Collection
+  // 7. Food Items Collection (foi)
+  {
+    collection: 'food_items',
+    spec: { foiName: 'text', foiCategory: 'text' },
+    options: { name: 'idx_food_items_text_search' },
+  },
+  {
+    collection: 'food_items',
+    spec: { foiIsCustom: 1, foiCreatedByUserId: 1 },
+    options: { name: 'idx_food_items_custom_user' },
+  },
+  {
+    collection: 'food_items',
+    spec: { foiCuisineType: 1 },
+    options: { name: 'idx_food_items_cuisine' },
+  },
+
+  // 8. Nutrition Days Collection (ntd)
+  {
+    collection: 'nutrition_days',
+    spec: { ntdUserId: 1, ntdDateString: 1 },
+    options: { unique: true, name: 'idx_nutrition_days_user_date_unique' },
+  },
+  {
+    collection: 'nutrition_days',
+    spec: { ntdUserId: 1, ntdUpdatedAt: -1 },
+    options: { name: 'idx_nutrition_days_user_updated' },
+  },
+
+  // 9. Diet Plans Collection (dpl)
+  {
+    collection: 'diet_plans',
+    spec: { dplUserId: 1, dplIsActive: 1 },
+    options: { name: 'idx_diet_plans_user_active' },
+  },
+
+  // 10. Maintenance Calorie Analyses Collection (mca)
+  {
+    collection: 'maintenance_calorie_analyses',
+    spec: { mcaUserId: 1, mcaPeriodEnd: -1 },
+    options: { name: 'idx_mca_user_period' },
+  },
+
+  // 11. Bodyweight Logs Collection (bwl)
+  {
+    collection: 'bodyweight_logs',
+    spec: { bwlUserId: 1, bwlDateString: -1 },
+    options: { unique: true, name: 'idx_bodyweight_logs_user_date_unique' },
+  },
+
+  // 12. Personal Records Collection (prc)
   {
     collection: 'personal_records',
-    spec: { userId: 1, exerciseId: 1 },
+    spec: { prcUserId: 1, prcExerciseId: 1 },
     options: { unique: true, name: 'idx_personal_records_user_exercise_unique' },
   },
 
-  // AI Diet Plans Collection
+  // 13. Audit Logs Collection (aud)
   {
-    collection: 'ai_diet_plans',
-    spec: { userId: 1, createdAt: -1 },
-    options: { name: 'idx_ai_diet_plans_user_created_at' },
+    collection: 'audit_logs',
+    spec: { audUserId: 1, audCreatedAt: -1 },
+    options: { name: 'idx_audit_logs_user_created' },
+  },
+
+  // 14. Notifications Collection (ntf)
+  {
+    collection: 'notifications',
+    spec: { ntfUserId: 1, ntfIsRead: 1, ntfCreatedAt: -1 },
+    options: { name: 'idx_notifications_user_read' },
+  },
+
+  // 15. Idempotency Keys Collection (idk)
+  {
+    collection: 'idempotency_keys',
+    spec: { idkUserId: 1, idkKey: 1 },
+    options: { unique: true, name: 'idx_idempotency_user_key_unique' },
+  },
+  {
+    collection: 'idempotency_keys',
+    spec: { idkCreatedAt: 1 },
+    options: { expireAfterSeconds: 86400, name: 'idx_idempotency_ttl' },
+  },
+
+  // 16. AI Requests Collection (air)
+  {
+    collection: 'ai_requests',
+    spec: { airUserId: 1, airCreatedAt: -1 },
+    options: { name: 'idx_ai_requests_user_created' },
   },
 ];

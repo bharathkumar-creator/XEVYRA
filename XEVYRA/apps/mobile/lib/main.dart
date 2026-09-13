@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'src/webview/fitness_webview.dart';
+import 'src/bootstrap/bootstrap_service.dart';
+import 'src/security/domain_security_policy.dart';
+import 'src/shell/bootstrap_shell.dart';
 import 'src/bridge/js_bridge.dart';
 
 void main() {
@@ -19,11 +21,28 @@ void main() {
 
 class XevyraMobileApp extends StatelessWidget {
   final String? initialUrl;
+  final BootstrapService? bootstrapService;
 
-  const XevyraMobileApp({super.key, this.initialUrl});
+  const XevyraMobileApp({
+    super.key,
+    this.initialUrl,
+    this.bootstrapService,
+  });
 
   @override
   Widget build(BuildContext context) {
+    const environmentMode = String.fromEnvironment('ENVIRONMENT_MODE', defaultValue: 'development');
+    final mode = environmentMode == 'production'
+        ? EnvironmentMode.production
+        : environmentMode == 'staging'
+            ? EnvironmentMode.staging
+            : EnvironmentMode.development;
+
+    final effectiveBootstrapService = bootstrapService ??
+        BootstrapService(
+          securityPolicy: DomainSecurityPolicy(mode: mode),
+        );
+
     return MaterialApp(
       title: 'XEVYRA',
       debugShowCheckedModeBanner: false,
@@ -36,14 +55,11 @@ class XevyraMobileApp extends StatelessWidget {
       ),
       home: Scaffold(
         body: SafeArea(
-          child: FitnessWebView(
-            initialUrl: initialUrl ?? 'http://localhost:3000',
+          child: BootstrapShell(
+            bootstrapService: effectiveBootstrapService,
+            directUrlOverride: initialUrl,
             onBridgeMessage: (BridgeMessage message) {
               debugPrint('Received Bridge Action: ${message.action}');
-              if (message.action == BridgeAction.requestNativeAuth) {
-                // Bridge proof-of-concept handling: In Phase 2 native auth, Firebase Google Sign In triggers here
-                debugPrint('Native Auth requested from WebView JavaScript.');
-              }
             },
           ),
         ),

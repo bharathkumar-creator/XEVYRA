@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const ApiEnvSchema = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  NODE_ENV: z.enum(['development', 'test', 'staging', 'production']).default('development'),
   PORT: z.coerce.number().default(4000),
   API_BASE_URL: z.string().url().default('http://localhost:4000'),
   WEB_APP_URL: z.string().url().default('http://localhost:3000'),

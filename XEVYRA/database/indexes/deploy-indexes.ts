@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { MongoClient } from 'mongodb';
 import { MONGO_INDEXES } from './mongo-indexes.js';
 

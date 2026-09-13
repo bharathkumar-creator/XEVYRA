@@ -100,6 +100,22 @@ describe('XEVYRA API: Foundational Endpoints & Middleware', () => {
     });
   });
 
+  describe('GET /api/v1/app/config (Mobile App Bootstrap)', () => {
+    it('should return safe public webAppUrl conforming to AppConfigResponse contract without secrets', async () => {
+      const res = await request(app).get('/api/v1/app/config');
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('webAppUrl');
+      expect(res.body.webAppUrl).toBe('http://localhost:3000');
+      expect(res.body).toHaveProperty('version');
+      expect(res.body).toHaveProperty('environment');
+      // Zero secrets leakage
+      expect(res.body).not.toHaveProperty('MONGODB_URI');
+      expect(res.body).not.toHaveProperty('FIREBASE_PRIVATE_KEY');
+      expect(res.body).not.toHaveProperty('FIREBASE_CLIENT_EMAIL');
+      expect(res.body).not.toHaveProperty('OPENAI_API_KEY');
+    });
+  });
+
   describe('Error Contract & 404 Routing', () => {
     it('should return standardized JSON Error Contract on nonexistent route', async () => {
       const res = await request(app).get('/api/v1/unknown-endpoint');

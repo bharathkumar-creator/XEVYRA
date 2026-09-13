@@ -25,5 +25,18 @@ void main() {
       expect(prodPolicy.isAllowed(Uri.parse('http://localhost:3000')), isFalse); // localhost rejected in prod
       expect(prodPolicy.isAllowed(Uri.parse('https://external-auth.com')), isFalse); // external domains rejected
     });
+
+    test('Staging mode enforces HTTPS and *.vercel.app, *.onrender.com, *.xevyra.fit', () {
+      const stagingPolicy = DomainSecurityPolicy(mode: EnvironmentMode.staging);
+
+      expect(stagingPolicy.isAllowed(Uri.parse('https://xevyra-web.vercel.app')), isTrue);
+      expect(stagingPolicy.isAllowed(Uri.parse('https://xevyra-api.onrender.com')), isTrue);
+      expect(stagingPolicy.isAllowed(Uri.parse('https://staging.xevyra.fit')), isTrue);
+
+      // Rejections
+      expect(stagingPolicy.isAllowed(Uri.parse('http://xevyra-web.vercel.app')), isFalse);
+      expect(stagingPolicy.isAllowed(Uri.parse('http://localhost:3000')), isFalse);
+      expect(stagingPolicy.isAllowed(Uri.parse('https://untrusted-staging.com')), isFalse);
+    });
   });
 }

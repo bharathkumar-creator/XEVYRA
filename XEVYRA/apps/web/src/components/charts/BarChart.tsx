@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import { EChart } from './EChart';
+import type { EChartsOption } from 'echarts';
 
 export interface BarChartDataPoint {
   label: string;
   value: number;
-  target?: number;
 }
 
 export interface BarChartProps {
@@ -19,59 +20,110 @@ export interface BarChartProps {
 export const BarChart: React.FC<BarChartProps> = ({
   data,
   height = 140,
-  barColor = '#D4FF00',
-  unit = '',
+  barColor = '#00E599',
+  unit = 'kg',
   className = '',
 }) => {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const xLabels = data.map((d) => d.label);
+  const values = data.map((d) => d.value);
 
-  if (!data || data.length === 0) {
-    return <div className="text-xs text-text-tertiary">No data</div>;
-  }
-
-  const maxVal = Math.max(...data.map((d) => Math.max(d.value, d.target || 0)), 1);
+  const option: EChartsOption = {
+    backgroundColor: 'transparent',
+    grid: {
+      left: '2%',
+      right: '2%',
+      top: '12%',
+      bottom: '12%',
+      containLabel: true,
+    },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#141C2E',
+      borderColor: 'rgba(0, 229, 153, 0.4)',
+      borderWidth: 1,
+      textStyle: {
+        color: '#FFFFFF',
+        fontFamily: 'Poppins, sans-serif',
+        fontSize: 12,
+        fontWeight: 'bold',
+      },
+      formatter: (params: any) => {
+        const item = params[0];
+        return `<div style="padding: 2px 4px;">
+          <span style="color: #94A3B8; font-size: 11px;">${item.name}</span><br/>
+          <strong style="color: ${barColor}; font-size: 14px;">${item.value.toLocaleString()} ${unit}</strong>
+        </div>`;
+      },
+    },
+    xAxis: {
+      type: 'category',
+      data: xLabels,
+      axisLine: {
+        lineStyle: {
+          color: '#1F293D',
+        },
+      },
+      axisLabel: {
+        color: '#64748B',
+        fontSize: 10,
+        fontFamily: 'Poppins, sans-serif',
+      },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: {
+        lineStyle: {
+          color: 'rgba(31, 41, 61, 0.6)',
+          type: 'dashed',
+        },
+      },
+      axisLabel: {
+        color: '#64748B',
+        fontSize: 10,
+        fontFamily: 'Poppins, sans-serif',
+        formatter: (val: number) => {
+          return val >= 1000 ? `${(val / 1000).toFixed(0)}k` : `${val}`;
+        },
+      },
+    },
+    series: [
+      {
+        name: 'Volume',
+        type: 'bar',
+        barWidth: '35%',
+        data: values,
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: barColor },
+              { offset: 1, color: `${barColor}80` },
+            ],
+          },
+          shadowColor: `${barColor}30`,
+          shadowBlur: 8,
+        },
+        emphasis: {
+          itemStyle: {
+            color: '#FFFFFF',
+            shadowBlur: 12,
+          },
+        },
+        animationDuration: 900,
+        animationEasing: 'elasticOut',
+      },
+    ],
+  };
 
   return (
-    <div className={`w-full flex flex-col gap-2 ${className}`}>
-      <div className="flex items-end justify-between gap-2 px-1" style={{ height }}>
-        {data.map((d, i) => {
-          const heightPercent = (d.value / maxVal) * 100;
-          const isHovered = hoveredIdx === i;
-
-          return (
-            <div
-              key={i}
-              className="flex-1 flex flex-col items-center h-full justify-end cursor-pointer group"
-              onMouseEnter={() => setHoveredIdx(i)}
-              onMouseLeave={() => setHoveredIdx(null)}
-            >
-              <div
-                className="w-full max-w-[28px] rounded-t-sm transition-all duration-200 group-hover:brightness-125"
-                style={{
-                  height: `${Math.max(4, heightPercent)}%`,
-                  backgroundColor: isHovered ? '#FFFFFF' : barColor,
-                }}
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      {hoveredIdx !== null && (
-        <div className="text-center text-xs font-semibold text-text-secondary">
-          <span>{data[hoveredIdx].label}: </span>
-          <span className="text-primary font-bold">{data[hoveredIdx].value} {unit}</span>
-        </div>
-      )}
-
-      {/* X-Axis labels */}
-      <div className="flex justify-between px-1 text-[10px] font-semibold text-text-tertiary uppercase">
-        {data.map((d, i) => (
-          <span key={i} className="text-center flex-1">
-            {d.label}
-          </span>
-        ))}
-      </div>
+    <div className={`w-full ${className}`}>
+      <EChart option={option} height={height} />
     </div>
   );
 };

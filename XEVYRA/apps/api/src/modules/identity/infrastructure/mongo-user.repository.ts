@@ -1,17 +1,17 @@
 import { Db, Collection } from 'mongodb';
 import { IUserRepository, User, Email } from '@xevyra/domain';
 
-interface UserDocument {
-  _id: string;
-  firebaseUid: string;
-  email: string;
-  displayName: string;
-  avatarUrl?: string;
-  timezone: string;
-  role: 'USER' | 'TRAINER' | 'ADMIN';
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+export interface UserDocument {
+  _id: string;                         // 'usr_01J...'
+  usrFirebaseUid: string;
+  usrEmail: string;
+  usrDisplayName: string;
+  usrAvatarUrl?: string;
+  usrTimezone?: string;
+  usrRole: 'USER' | 'TRAINER' | 'ADMIN';
+  usrIsActive: boolean;
+  usrCreatedAt: Date;
+  usrUpdatedAt: Date;
 }
 
 export class MongoUserRepository implements IUserRepository {
@@ -22,22 +22,22 @@ export class MongoUserRepository implements IUserRepository {
   }
 
   private toDomain(doc: UserDocument): User {
-    const emailResult = Email.create(doc.email);
+    const emailResult = Email.create(doc.usrEmail);
     if (emailResult.isFailure) {
-      throw new Error(`Corrupted email in database: ${doc.email}`);
+      throw new Error(`Corrupted email in database: ${doc.usrEmail}`);
     }
 
     const userResult = User.create({
       id: doc._id,
-      firebaseUid: doc.firebaseUid,
+      firebaseUid: doc.usrFirebaseUid,
       email: emailResult.getValue(),
-      displayName: doc.displayName,
-      avatarUrl: doc.avatarUrl,
-      timezone: doc.timezone,
-      role: doc.role,
-      isActive: doc.isActive,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
+      displayName: doc.usrDisplayName,
+      avatarUrl: doc.usrAvatarUrl,
+      timezone: doc.usrTimezone,
+      role: doc.usrRole,
+      isActive: doc.usrIsActive,
+      createdAt: doc.usrCreatedAt,
+      updatedAt: doc.usrUpdatedAt,
     });
 
     if (userResult.isFailure) {
@@ -50,15 +50,15 @@ export class MongoUserRepository implements IUserRepository {
   private toDocument(user: User): UserDocument {
     return {
       _id: user.id,
-      firebaseUid: user.firebaseUid,
-      email: user.email.value,
-      displayName: user.displayName,
-      avatarUrl: user.avatarUrl,
-      timezone: user.timezone,
-      role: user.role,
-      isActive: user.isActive,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      usrFirebaseUid: user.firebaseUid,
+      usrEmail: user.email.value.toLowerCase(),
+      usrDisplayName: user.displayName,
+      usrAvatarUrl: user.avatarUrl,
+      usrTimezone: user.timezone,
+      usrRole: user.role,
+      usrIsActive: user.isActive,
+      usrCreatedAt: user.createdAt,
+      usrUpdatedAt: user.updatedAt,
     };
   }
 
@@ -68,12 +68,12 @@ export class MongoUserRepository implements IUserRepository {
   }
 
   public async findByFirebaseUid(firebaseUid: string): Promise<User | null> {
-    const doc = await this.collection.findOne({ firebaseUid });
+    const doc = await this.collection.findOne({ usrFirebaseUid: firebaseUid });
     return doc ? this.toDomain(doc) : null;
   }
 
   public async findByEmail(email: string): Promise<User | null> {
-    const doc = await this.collection.findOne({ email: email.toLowerCase() });
+    const doc = await this.collection.findOne({ usrEmail: email.toLowerCase() });
     return doc ? this.toDomain(doc) : null;
   }
 

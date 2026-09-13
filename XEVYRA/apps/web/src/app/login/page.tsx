@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { MotivationalQuote } from '@/components/ui/MotivationalQuote';
+import { getFirebaseAuth } from '@/lib/firebase/firebase-client';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,11 +16,41 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     try {
-      // In production web, this triggers Firebase Google Popup and backend session creation
-      // For development/demo environment, we securely transition to dashboard
-      setTimeout(() => {
+      const { auth, googleProvider } = getFirebaseAuth();
+      if (auth && googleProvider && process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        const { signInWithPopup } = await import('firebase/auth');
+        const userCred = await signInWithPopup(auth, googleProvider);
+        const idToken = await userCred.user.getIdToken();
+
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+        const res = await fetch(`${apiUrl}/auth/session`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({
+            displayName: userCred.user.displayName || 'Athlete',
+            avatarUrl: userCred.user.photoURL,
+            clientPlatform: 'WEB',
+          }),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData?.error?.message || 'Failed to establish athlete session with backend.');
+        }
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('xevyra_auth_token', idToken);
+        }
         router.push('/dashboard');
-      }, 600);
+      } else {
+        // Fallback for development demo exploration
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 400);
+      }
     } catch (err: any) {
       setError(err?.message || 'Authentication failed. Please try again.');
       setIsLoading(false);
@@ -123,6 +155,9 @@ export default function LoginPage() {
             </span>
           </div>
         </Card>
+
+        {/* Motivational Athlete Creed */}
+        <MotivationalQuote category="discipline" variant="compact" className="justify-center text-center px-4" />
 
         {/* Security & Platform Badges */}
         <div className="flex items-center gap-6 text-[11px] font-bold text-text-tertiary uppercase">

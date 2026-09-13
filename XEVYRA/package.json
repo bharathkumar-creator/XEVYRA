@@ -12,6 +12,8 @@
     "dev:api": "npm --workspace=@xevyra/api run dev",
     "dev:web": "npm --workspace=@xevyra/web run dev",
     "build": "npm run build --workspaces --if-present",
+    "build:web": "npm --workspace=@xevyra/web run build",
+    "build:api": "npm --workspace=@xevyra/api run build",
     "test": "npm run test --workspaces --if-present",
     "test:flutter": "cd apps/mobile && flutter test",
     "lint": "npm run lint --workspaces --if-present",

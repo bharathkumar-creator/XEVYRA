@@ -20,17 +20,17 @@ export const Card: React.FC<CardProps> = ({
   }[padding];
 
   const variantStyles = {
-    default: 'bg-surface border border-border-subtle shadow-card',
+    default: 'uiverse-card',
     elevated: 'bg-surface-elevated border border-border-light shadow-card',
     interactive:
-      'bg-surface border border-border-subtle card-interactive hover:border-primary/40 cursor-pointer shadow-card',
+      'uiverse-card cursor-pointer',
     outline: 'bg-transparent border border-border-subtle',
     highlight: 'bg-surface-elevated border border-primary/30 shadow-glow-primary/20',
   }[variant];
 
   return (
     <div
-      className={`rounded-lg transition-colors overflow-hidden ${variantStyles} ${paddingStyles} ${className}`}
+      className={`rounded-xl transition-all overflow-hidden ${variantStyles} ${paddingStyles} ${className}`}
       {...props}
     >
       {children}

@@ -1,18 +1,13 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Outfit } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 import './globals.css';
 import { AppShell } from '@/components/navigation/AppShell';
 
-const inter = Inter({
+const poppins = Poppins({
   subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
   display: 'swap',
-  variable: '--font-inter',
-});
-
-const outfit = Outfit({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-outfit',
+  variable: '--font-poppins',
 });
 
 export const metadata: Metadata = {
@@ -36,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${outfit.variable}`}>
-      <body className="bg-background-deep text-text-primary antialiased min-h-screen selection:bg-primary selection:text-background-deep">
+    <html lang="en" className={`dark ${poppins.variable}`}>
+      <body className="font-sans bg-background-deep text-text-primary antialiased min-h-screen selection:bg-primary selection:text-background-deep">
         <AppShell>{children}</AppShell>
       </body>
     </html>

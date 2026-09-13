@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: xevyra-api-staging
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: node apps/api/dist/server.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: staging
+      - key: MONGODB_DB_NAME
+        value: xevyra_staging
+      - key: FIREBASE_PROJECT_ID
+        value: xevyra-staging
+      - key: MONGODB_URI
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: WEB_APP_URL
+        sync: false

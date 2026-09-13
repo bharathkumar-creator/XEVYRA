@@ -1,5 +1,6 @@
 enum EnvironmentMode {
   development,
+  staging,
   production,
 }
 
@@ -9,6 +10,18 @@ class DomainSecurityPolicy {
   const DomainSecurityPolicy({this.mode = EnvironmentMode.development});
 
   bool isAllowed(Uri uri) {
+    // Staging: Strictly HTTPS and *.vercel.app, *.onrender.com, or *.xevyra.fit
+    if (mode == EnvironmentMode.staging) {
+      if (uri.scheme != 'https') {
+        return false;
+      }
+      final host = uri.host.toLowerCase();
+      return host == 'xevyra.fit' ||
+          host.endsWith('.xevyra.fit') ||
+          host.endsWith('.vercel.app') ||
+          host.endsWith('.onrender.com');
+    }
+
     // Production: Strictly HTTPS and *.xevyra.fit or xevyra.fit
     if (mode == EnvironmentMode.production) {
       if (uri.scheme != 'https') {

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Avatar } from '../ui/Avatar';
+import { NotificationBell } from '../ui/NotificationBell';
 
 export interface AppHeaderProps {
   athleteName?: string;
@@ -39,8 +40,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           </div>
         </Link>
 
-        {/* Header Right: Streak & Profile */}
+        {/* Header Right: Notifications, Streak & Profile */}
         <div className="flex items-center gap-3">
+          {/* Animated Notification Bell */}
+          <NotificationBell count={2} />
+
           {/* Consistency Streak */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-surface-elevated border border-border-subtle text-xs font-bold">
             <span className="text-feedback-warning">🔥</span>
