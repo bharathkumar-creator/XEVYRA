@@ -18,6 +18,7 @@ import { ErrorState } from '@/components/feedback/ErrorState';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { useToast } from '@/components/feedback/Toast';
 import { useDashboard } from '@/lib/hooks/useDashboard';
+import { RecentPRDto } from '@xevyra/contracts';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -218,7 +219,7 @@ export default function DashboardPage() {
             }
           />
           <div className="flex flex-wrap gap-2.5">
-            {athlete.recentPRs.map((pr, i) => (
+            {athlete.recentPRs.map((pr: RecentPRDto, i: number) => (
               <PRBadge
                 key={i}
                 exerciseName={pr.exerciseName}
