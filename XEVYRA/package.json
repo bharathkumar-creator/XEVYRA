@@ -11,15 +11,17 @@
   "scripts": {
     "dev:api": "npm --workspace=@xevyra/api run dev",
     "dev:web": "npm --workspace=@xevyra/web run dev",
-    "build": "npm run build --workspaces --if-present",
-    "build:web": "npm --workspace=@xevyra/web run build",
-    "build:api": "npm --workspace=@xevyra/api run build",
-    "test": "npm run test --workspaces --if-present",
+    "build:packages": "npm run build --workspace=@xevyra/shared --workspace=@xevyra/domain --workspace=@xevyra/validation --workspace=@xevyra/contracts --workspace=@xevyra/config",
+    "build:api": "npm run build:packages && npm --workspace=@xevyra/api run build",
+    "build:web": "npm run build:packages && npm --workspace=@xevyra/web run build",
+    "build": "npm run build:packages && npm --workspace=@xevyra/web run build && npm --workspace=@xevyra/api run build",
+    "typecheck": "npm run build:packages && npm run lint --workspaces --if-present",
+    "test": "npm run build:packages && npm run test --workspaces --if-present",
     "test:flutter": "cd apps/mobile && flutter test",
     "lint": "npm run lint --workspaces --if-present",
     "db:indexes": "tsx database/indexes/deploy-indexes.ts",
     "db:index": "tsx database/indexes/deploy-indexes.ts",
-    "clean": "node -e \"const fs = require('fs'); ['node_modules', 'dist', '.next'].forEach(d => { try { fs.rmSync(d, { recursive: true, force: true }); } catch {} });\""
+    "clean": "node -e \"const fs = require('fs'); const paths = ['dist', '.next', 'apps/api/dist', 'apps/web/.next', 'packages/shared/dist', 'packages/domain/dist', 'packages/validation/dist', 'packages/contracts/dist', 'packages/config/dist']; paths.forEach(d => { try { fs.rmSync(d, { recursive: true, force: true }); } catch {} });\""
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

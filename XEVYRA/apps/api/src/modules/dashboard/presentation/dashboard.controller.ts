@@ -49,7 +49,16 @@ export class DashboardController {
       const consumedFat = todayNutrition?.ntdTotalConsumed.fatGrams || 0;
 
       // Today's workout selection
-      let todayWorkout: any = undefined;
+      interface DashboardWorkoutDto {
+        id: string;
+        name: string;
+        muscleGroups: string[];
+        exerciseCount: number;
+        estimatedMinutes: number;
+        status: 'IN_PROGRESS' | 'READY';
+        lastCompletedDate?: string;
+      }
+      let todayWorkout: DashboardWorkoutDto | undefined = undefined;
       const activeSession = sessions.find((s) => s.wseStatus === 'IN_PROGRESS');
 
       if (activeSession) {
