@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@xevyra/contracts": "*",
+    "@xevyra/domain": "*",
     "@xevyra/shared": "*",
     "@xevyra/validation": "*",
     "clsx": "^2.1.1",
