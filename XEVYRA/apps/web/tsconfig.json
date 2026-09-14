@@ -23,10 +23,9 @@
       "@xevyra/contracts": ["../../packages/contracts/src/index.ts"],
       "@xevyra/domain": ["../../packages/domain/src/index.ts"],
       "@xevyra/shared": ["../../packages/shared/src/index.ts"],
-      "@xevyra/validation": ["../../packages/validation/src/index.ts"],
-      "@xevyra/config": ["../../packages/config/src/index.ts"]
+      "@xevyra/validation": ["../../packages/validation/src/index.ts"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "../../packages/*/src/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
